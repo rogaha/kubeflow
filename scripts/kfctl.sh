@@ -45,6 +45,10 @@ createEnv() {
       echo KUBEFLOW_CLOUD=minikube >> ${ENV_FILE}
       echo MOUNT_LOCAL=${MOUNT_LOCAL} >> ${ENV_FILE}
       ;;
+    docker-for-desktop)
+      echo KUBEFLOW_CLOUD=docker-for-desktop >> ${ENV_FILE}
+      echo MOUNT_LOCAL=${MOUNT_LOCAL} >> ${ENV_FILE}
+      ;;
     ack)
       echo KUBEFLOW_CLOUD=ack >> ${ENV_FILE}
       echo KUBEFLOW_DOCKER_REGISTRY=registry.aliyuncs.com >> ${ENV_FILE}
@@ -198,7 +202,7 @@ customizeKsApp() {
 ksApply () {
   pushd ${KUBEFLOW_KS_DIR}
 
-  if [ "${PLATFORM}" == "minikube" ]; then
+  if [ "${PLATFORM}" == "minikube" ]  || [ "${PLATFORM}" == "docker-for-desktop" ]; then
     set +e
     O=`kubectl get namespace ${K8S_NAMESPACE} 2>&1`
     RESULT=$?
@@ -233,7 +237,7 @@ ksApply () {
   popd
 
   set +x
-  if [ "${PLATFORM}" == "minikube" ]; then
+  if [ "${PLATFORM}" == "minikube" ]  || [ "${PLATFORM}" == "docker-for-desktop" ]; then
     if is_kubeflow_ready; then
       mount_local_fs
       setup_tunnels
@@ -263,7 +267,7 @@ if [ "${COMMAND}" == "generate" ]; then
     	gcpGenerateKsApp
     fi
 
-    if [ "${PLATFORM}" == "minikube" ]; then
+    if [ "${PLATFORM}" == "minikube" ] || [ "${PLATFORM}" == "docker-for-desktop" ]; then
       create_local_fs_mount_spec
       if ${MOUNT_LOCAL}; then
         ks param set jupyterhub disks "local-notebooks"
